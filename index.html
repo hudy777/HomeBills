@@ -553,9 +553,9 @@ function applyTheme(){
 function buildSwatches(){document.getElementById('swatches').innerHTML=suggested.map(c=>`<div class="sw${c.hex===state.accentColor?' on':''}" style="background:${c.hex};" onclick="applyAccent('${c.hex}','${c.name}',this)" title="${c.name}"></div>`).join('');}
 function applyAccent(hex,name,el){state.accentColor=hex;state.accentName=name;document.getElementById('accent-sub').textContent=name;document.getElementById('cc').value=hex;document.querySelectorAll('.sw').forEach(s=>s.classList.remove('on'));if(el)el.classList.add('on');applyTheme();scheduleSave();}
 function applyCustomColor(hex){state.accentColor=hex;state.accentName='Custom';document.getElementById('accent-sub').textContent='Custom';document.querySelectorAll('.sw').forEach(s=>s.classList.remove('on'));applyTheme();scheduleSave();}
-function setTheme(mode,btn){state.isDark=mode==='dark';document.querySelectorAll('.th-btn').forEach(b=>{b.classList.remove('active');b.style.background='transparent';b.style.color='';});btn.classList.add('active');btn.style.background=state.accentColor;btn.style.color='#fff';document.getElementById('theme-sub').textContent=state.isDark?'Dark':'Light';applyTheme();scheduleSave();}
-function setCurrency(sym,name,btn){if(!isEditor)return;state.currSym=sym;document.querySelectorAll('.cpill').forEach(p=>p.classList.remove('active'));btn.classList.add('active');document.getElementById('currency-sub').textContent=name;document.getElementById('mob-add-sym').textContent=sym;buildBillList();buildMobBillList();loadBillValues();loadMobBillValues();applyTheme();update();scheduleSave();}
-function syncCurrPills(){document.querySelectorAll('#curr-grid .cpill').forEach(el=>{const sym=el.textContent.trim().split(' ')[0];el.classList.toggle('active',sym===state.currSym);});document.getElementById('currency-sub').textContent=state.currSym;document.getElementById('mob-add-sym').textContent=state.currSym;}
+function setTheme(mode,btn){state.isDark=mode==='dark';document.querySelectorAll('.th-btn').forEach(b=>{b.classList.remove('active');b.style.background='';b.style.color='';});btn.classList.add('active');btn.style.background=state.accentColor;btn.style.color='#fff';document.getElementById('theme-sub').textContent=state.isDark?'Dark':'Light';applyTheme();scheduleSave();}
+function setCurrency(sym,name,btn){if(!isEditor)return;state.currSym=sym;document.querySelectorAll('.cpill').forEach(p=>{p.classList.remove('active');p.style.background='';p.style.color='';p.style.borderColor='';});btn.classList.add('active');document.getElementById('currency-sub').textContent=name;document.getElementById('mob-add-sym').textContent=sym;buildBillList();buildMobBillList();loadBillValues();loadMobBillValues();applyTheme();update();scheduleSave();}
+function syncCurrPills(){document.querySelectorAll('#curr-grid .cpill').forEach(el=>{const sym=el.textContent.trim().split(' ')[0];const active=sym===state.currSym;el.classList.toggle('active',active);el.style.background=active?state.accentColor:'';el.style.color=active?'#fff':'';el.style.borderColor=active?'transparent':'';});document.getElementById('currency-sub').textContent=state.currSym;document.getElementById('mob-add-sym').textContent=state.currSym;}
 
 function initDropdowns(){
   const now=new Date();
@@ -612,7 +612,7 @@ function buildMobBillList(){
   loadMobBillValues();
 }
 
-function chgPeople(d){if(!isEditor)return;state.people=Math.max(1,Math.min(20,state.people+d));document.getElementById('ppl-val').textContent=state.people;while(state.persons.length<state.people)state.persons.push({id:'p'+(state.persons.length+1)+'_'+Date.now(),name:'Person '+(state.persons.length+1)});if(state.persons.length>state.people)state.persons=state.persons.slice(0,state.people);buildPersonsList();buildBillList();buildMobBillList();loadBillValues();loadMobBillValues();update();scheduleSave();}
+function chgPeople(d){if(!isEditor)return;state.people=Math.max(1,Math.min(20,state.people+d));document.getElementById('ppl-val').textContent=state.people;while(state.persons.length<state.people)state.persons.push({id:'p'+(state.persons.length+1)+'_'+Date.now(),name:'Person '+(state.persons.length+1)});if(state.persons.length>state.people)state.persons=state.persons.slice(0,state.people);buildPersonsList();buildGroupsList();buildBillList();buildMobBillList();loadBillValues();loadMobBillValues();update();scheduleSave();}
 function buildPersonsList(){const wrap=document.getElementById('persons-wrap');if(state.people<=1){wrap.innerHTML='';return;}wrap.innerHTML=state.persons.map((p,i)=>`<div class="person-row"><div class="pdot" style="width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;flex-shrink:0;background:${pBgs[i%pBgs.length]};color:${pColors[i%pColors.length]};">${p.name.charAt(0).toUpperCase()}</div><input class="pname-inp" value="${p.name}" oninput="renamePerson('${p.id}',this.value)" ${!isEditor?'disabled':''}/></div>`).join('');}
 function renamePerson(id,name){const p=state.persons.find(x=>x.id===id);if(p){p.name=name;}buildBillList();buildMobBillList();update();scheduleSave();}
 
@@ -628,7 +628,7 @@ function buildGroupsList(){
 }
 
 function getPersonShare(pid){let t=0;state.bills.forEach(b=>{const v=parseFloat(document.getElementById('mob-inp-'+b.id)?.value||document.getElementById('inp-'+b.id)?.value)||0;const ass=b.assignedTo.length===0?state.persons.map(p=>p.id):b.assignedTo;if(ass.includes(pid))t+=v/ass.length;});return t;}
-function setBd(mode,btn){state.bdMode=mode;document.querySelectorAll('.bd-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');applyTheme();update();}
+function setBd(mode,btn){state.bdMode=mode;document.querySelectorAll('.bd-btn').forEach(b=>{b.classList.remove('active');b.style.background='';b.style.color='';});btn.classList.add('active');btn.style.background=state.accentColor;btn.style.color='#fff';applyTheme();update();}
 const tabNames={home:'Overview',bills:'Bills',history:'History',settings:'Settings'};
 
 function goTab(name){
@@ -641,7 +641,7 @@ function goTab(name){
   if(name==='settings'){buildPersonsList();buildGroupsList();applyEditMode();}
   applyTheme();
 }
-function setPeriod(p,btn){state.period=p;document.querySelectorAll('.ptbtn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');applyTheme();update();}
+function setPeriod(p,btn){state.period=p;document.querySelectorAll('.ptbtn').forEach(b=>{b.classList.remove('active');b.style.background='';b.style.color='';});btn.classList.add('active');btn.style.background=state.accentColor;btn.style.color='#fff';applyTheme();update();}
 
 function renderBdBill(monthly,total,m){
   if(total===0)return`<div class="no-data">No bills entered yet.</div>`;
