@@ -1,4 +1,4 @@
-<!-- Home Utilities v0.5.8 -->
+<!-- Home Utilities v0.6.0 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -84,11 +84,11 @@ body.dark .mob-lock{border-color:rgba(255,255,255,0.12);color:#aeaeb2}
 /* BADGES / TOGGLES */
 .badge-pill{padding:5px 14px;border-radius:20px;border:0.5px solid rgba(0,0,0,0.12);font-size:13px;background:#fff;color:#6e6e73}
 body.dark .badge-pill{background:#2c2c2e;border-color:rgba(255,255,255,0.12);color:#aeaeb2}
-.period-tog{display:flex;background:#fff;border:0.5px solid rgba(0,0,0,0.1);border-radius:10px;overflow:hidden}
-body.dark .period-tog{background:#2c2c2e;border-color:rgba(255,255,255,0.1)}
-.ptbtn{padding:6px 14px;border:none;background:transparent;font-size:12px;cursor:pointer;font-weight:500;color:#6e6e73;white-space:nowrap}
-body.dark .ptbtn{color:#aeaeb2}
-.ptbtn.active{color:#fff}
+
+body.dark 
+
+body.dark 
+
 .bd-tog{display:flex;border:0.5px solid rgba(0,0,0,0.1);border-radius:8px;overflow:hidden}
 body.dark .bd-tog{border-color:rgba(255,255,255,0.12)}
 .bd-btn{font-size:12px;padding:4px 12px;border:none;background:transparent;cursor:pointer;font-weight:500;color:#6e6e73;white-space:nowrap}
@@ -277,6 +277,14 @@ body.dark .date-opt{color:#f2f2f7;background:#2c2c2e;border-color:rgba(255,255,2
 body.dark .date-opt:hover{background:rgba(255,255,255,0.06)}
 .date-opt.selected{font-weight:700}
 
+
+.weather-pill{display:flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;border:0.5px solid rgba(0,0,0,0.1);background:#fff;font-size:12px;font-weight:500;color:#1c1c1e;cursor:pointer;white-space:nowrap}
+body.dark .weather-pill{background:#2c2c2e;border-color:rgba(255,255,255,0.1);color:#f2f2f7}
+.weather-icon{font-size:16px;line-height:1}
+.weather-temp{font-size:13px;font-weight:600}
+.weather-desc{font-size:11px;color:#6e6e73}
+body.dark .weather-desc{color:#aeaeb2}
+
 .no-data{padding:28px;text-align:center;color:#aeaeb2;font-size:13px}
 
 </style>
@@ -308,7 +316,7 @@ body.dark .date-opt:hover{background:rgba(255,255,255,0.06)}
     <div class="mob-actions">
       <button class="mob-lock" onclick="toggleLock()"><i class="ti ti-lock-open" id="mob-lock-icon" style="font-size:13px;"></i><span id="mob-lock-label">Edit</span></button>
       <div class="mob-sync" id="mob-sync-dot"></div>
-      <span style="font-size:10px;color:#aeaeb2;font-weight:500;margin-right:2px;">v0.5.8</span>
+      <span style="font-size:10px;color:#aeaeb2;font-weight:500;margin-right:2px;">v0.6.0</span>
       <div style="display:flex;align-items:center;gap:4px;"><div class="sync-dot" id="sync-dot"></div><span id="sync-label" style="font-size:10px;color:#aeaeb2;"></span></div>
     </div>
     </div>
@@ -320,12 +328,7 @@ body.dark .date-opt:hover{background:rgba(255,255,255,0.06)}
       <div class="page-title">Overview</div>
       <div class="page-actions">
         <div class="badge-pill" id="home-badge">June 2026</div>
-        <div class="period-tog">
-          <button class="ptbtn active" onclick="setPeriod('monthly',this)">Monthly</button>
-          <button class="ptbtn" onclick="setPeriod('annual',this)">Annual</button>
-          <button class="ptbtn" onclick="setPeriod('daily',this)">Daily</button>
-        </div>
-      </div>
+        <div class="weather-pill" id="weather-pill" onclick="loadWeather(true)"><span id="w-icon" class="weather-icon">⟳</span><span id="w-temp" class="weather-temp">--</span><span id="w-desc" class="weather-desc">weather</span></div></div>
     </div>
     <div style="padding:0 16px 0;display:block;" id="home-inner">
       <div class="stat-grid" style="padding:0;">
@@ -472,7 +475,7 @@ body.dark .date-opt:hover{background:rgba(255,255,255,0.06)}
         </div>
       </div>
     </div>
-    <div style="padding:16px 20px 8px;text-align:center;font-size:11px;color:#aeaeb2;">Home Utilities v0.5.8</div>
+    <div style="padding:16px 20px 8px;text-align:center;font-size:11px;color:#aeaeb2;">Home Utilities v0.6.0</div>
   </div>
 
 </div><!-- /main -->
@@ -485,7 +488,7 @@ body.dark .date-opt:hover{background:rgba(255,255,255,0.06)}
 </div>
 
 <script>
-const CORRECT_PIN='2708'; const APP_VERSION='0.5.8';
+const CORRECT_PIN='2708'; const APP_VERSION='0.6.0';
 
 const defaultBills=[
   {id:'electricity',label:'Electricity',icon:'ti-bolt',bg:'#e6f1fb',ic:'#185fa5',custom:false,assignedTo:[]},
@@ -539,7 +542,7 @@ function getMobKey(){return document.getElementById('mob-sel-year').value+'-'+do
 function getDeskKey(){return document.getElementById('mob-sel-year').value+'-'+document.getElementById('mob-sel-month').value;}
 function getKey(){return getMobKey();}
 function getMonthly(){return state.bills.map(b=>parseFloat(document.getElementById('mob-inp-'+b.id)?.value)||0);}
-function mult(){return state.period==='annual'?12:state.period==='daily'?1/30:1;}
+function mult(){return 1;}
 
 function toggleLock(){
   if(isEditor){isEditor=false;applyEditMode();}
@@ -575,7 +578,6 @@ function applyTheme(){
   const ibg=document.getElementById('icon-bg');if(ibg)ibg.setAttribute('fill',state.accentColor);
   document.body.classList.toggle('dark',state.isDark);
   document.querySelectorAll('.tab-item').forEach(el=>{el.style.color=el.classList.contains('active')?state.accentColor:'';});
-  document.querySelectorAll('.ptbtn').forEach(el=>{const on=el.classList.contains('active');el.style.background=on?state.accentColor:'';el.style.color=on?'#fff':'';});
   document.querySelectorAll('.bd-btn').forEach(el=>{const on=el.classList.contains('active');el.style.background=on?state.accentColor:'';el.style.color=on?'#fff':'';});
   document.querySelectorAll('.th-btn').forEach(el=>{const on=el.classList.contains('active');el.style.background=on?state.accentColor:'';el.style.color=on?'#fff':'';});
   document.querySelectorAll('.add-bill-btn,#mob-btn-add-ok,#btn-add-ok').forEach(el=>{if(el)el.style.background=state.accentColor;});
@@ -704,7 +706,7 @@ function goTab(name){
   if(name==='settings'){buildPersonsList();buildGroupsList();applyEditMode();}
   applyTheme();
 }
-function setPeriod(p,btn){state.period=p;document.querySelectorAll('.ptbtn').forEach(b=>{b.classList.remove('active');b.style.background='';b.style.color='';});btn.classList.add('active');btn.style.background=state.accentColor;btn.style.color='#fff';applyTheme();update();}
+
 
 function getChartColors(){
   return state.bills.map(b=>b.bg);
@@ -844,7 +846,7 @@ function renderChart(labels,values,colors,sym,m){
 
 function update(){
   const monthly=getMonthly();const total=monthly.reduce((a,b)=>a+b,0);const m=mult();
-  const label=state.period==='annual'?'per year':state.period==='daily'?'per day':'this month';
+  const label='this month';
   // Shared total: only bills assigned to everyone
   const allPersonIds=state.persons.map(p=>p.id);
   const sharedTotal=state.bills.reduce((sum,b,i)=>{
@@ -1046,9 +1048,46 @@ document.addEventListener('click',function(e){
     const d=document.getElementById('year-picker-drop');if(d)d.style.display='none';
   }
 });
+
+const WMO_ICONS={0:'☀️',1:'🌤️',2:'⛅',3:'☁️',45:'🌫️',48:'🌫️',51:'🌦️',53:'🌦️',55:'🌧️',61:'🌧️',63:'🌧️',65:'🌧️',71:'🌨️',73:'🌨️',75:'🌨️',77:'🌨️',80:'🌦️',81:'🌧️',82:'⛈️',85:'🌨️',86:'🌨️',95:'⛈️',96:'⛈️',99:'⛈️'};
+const WMO_DESC={0:'Clear sky',1:'Mainly clear',2:'Partly cloudy',3:'Overcast',45:'Foggy',48:'Foggy',51:'Light drizzle',53:'Drizzle',55:'Heavy drizzle',61:'Slight rain',63:'Rain',65:'Heavy rain',71:'Light snow',73:'Snow',75:'Heavy snow',77:'Snow grains',80:'Rain showers',81:'Rain showers',82:'Violent showers',85:'Snow showers',86:'Snow showers',95:'Thunderstorm',96:'Thunderstorm',99:'Thunderstorm'};
+
+function loadWeather(force){
+  const cached=localStorage.getItem('hu_weather');
+  const cachedTime=localStorage.getItem('hu_weather_time');
+  const now=Date.now();
+  if(!force&&cached&&cachedTime&&(now-parseInt(cachedTime))<1800000){
+    applyWeather(JSON.parse(cached));return;
+  }
+  if(!navigator.geolocation){setWeatherError('No GPS');return;}
+  document.getElementById('w-desc').textContent='locating...';
+  navigator.geolocation.getCurrentPosition(pos=>{
+    const {latitude:lat,longitude:lon}=pos.coords;
+    fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weathercode&temperature_unit=celsius&timezone=auto`)
+      .then(r=>r.json())
+      .then(d=>{
+        const w={temp:Math.round(d.current.temperature_2m),code:d.current.weathercode};
+        localStorage.setItem('hu_weather',JSON.stringify(w));
+        localStorage.setItem('hu_weather_time',Date.now().toString());
+        applyWeather(w);
+      })
+      .catch(()=>setWeatherError('Offline'));
+  },()=>setWeatherError('No GPS'));
+}
+function applyWeather(w){
+  document.getElementById('w-icon').textContent=WMO_ICONS[w.code]||'🌡️';
+  document.getElementById('w-temp').textContent=w.temp+'°C';
+  document.getElementById('w-desc').textContent=WMO_DESC[w.code]||'';
+}
+function setWeatherError(msg){
+  document.getElementById('w-icon').textContent='🌡️';
+  document.getElementById('w-temp').textContent='--';
+  document.getElementById('w-desc').textContent=msg;
+}
 initDropdowns();buildYearOpts();buildSwatches();buildPersonsList();buildGroupsList();buildBillList();buildMobBillList();updateHomeBadge();buildCal();applyTheme();applyEditMode();update();updatePickerSelected();updatePickerDropStyles();
 window.addEventListener('resize',()=>{applyEditMode();applyTheme();});
 loadFromDB();
+loadWeather(false);
 </script>
 
 <!-- PIN overlay -->
