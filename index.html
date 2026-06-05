@@ -1,4 +1,4 @@
-<!-- Home Utilities v0.6.2 -->
+<!-- Home Utilities v0.6.4 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -316,7 +316,7 @@ body.dark .weather-desc{color:#aeaeb2}
     <div class="mob-actions">
       <button class="mob-lock" onclick="toggleLock()"><i class="ti ti-lock-open" id="mob-lock-icon" style="font-size:13px;"></i><span id="mob-lock-label">Edit</span></button>
       <div class="mob-sync" id="mob-sync-dot"></div>
-      <span style="font-size:10px;color:#aeaeb2;font-weight:500;margin-right:2px;">v0.6.2</span>
+      <span style="font-size:10px;color:#aeaeb2;font-weight:500;margin-right:2px;">v0.6.4</span>
       <div style="display:flex;align-items:center;gap:4px;"><div class="sync-dot" id="sync-dot"></div><span id="sync-label" style="font-size:10px;color:#aeaeb2;"></span></div>
     </div>
     </div>
@@ -328,7 +328,7 @@ body.dark .weather-desc{color:#aeaeb2}
       <div class="page-title">Overview</div>
       <div class="page-actions">
         <div class="badge-pill" id="home-badge">June 2026</div>
-        <div class="weather-pill" id="weather-pill" onclick="loadWeather(true)"><span id="w-icon" class="weather-icon">⟳</span><span id="w-temp" class="weather-temp">--</span><span id="w-desc" class="weather-desc">weather</span><span id="w-city" class="weather-desc" style="opacity:0.7;"></span></div></div>
+        <div class="weather-pill" id="weather-pill" onclick="retryWeather()"><span id="w-icon" class="weather-icon">⟳</span><span id="w-temp" class="weather-temp">--</span><span id="w-desc" class="weather-desc">weather</span><span id="w-city" class="weather-desc" style="opacity:0.7;"></span></div></div>
     </div>
     <div style="padding:0 16px 0;display:block;" id="home-inner">
       <div class="stat-grid" style="padding:0;">
@@ -475,7 +475,7 @@ body.dark .weather-desc{color:#aeaeb2}
         </div>
       </div>
     </div>
-    <div style="padding:16px 20px 8px;text-align:center;font-size:11px;color:#aeaeb2;">Home Utilities v0.6.2</div>
+    <div style="padding:16px 20px 8px;text-align:center;font-size:11px;color:#aeaeb2;">Home Utilities v0.6.4</div>
   </div>
 
 </div><!-- /main -->
@@ -488,7 +488,7 @@ body.dark .weather-desc{color:#aeaeb2}
 </div>
 
 <script>
-const CORRECT_PIN='2708'; const APP_VERSION='0.6.2';
+const CORRECT_PIN='2708'; const APP_VERSION='0.6.4';
 
 const defaultBills=[
   {id:'electricity',label:'Electricity',icon:'ti-bolt',bg:'#e6f1fb',ic:'#185fa5',custom:false,assignedTo:[]},
@@ -509,8 +509,8 @@ let isEditor=false,pinBuffer='',openAssignId=null,syncTimeout=null,chartType='ba
 
 function isMobile(){return window.innerWidth<768;}
 
-function sbGet(){try{const raw=localStorage.getItem('hu_data');return raw?JSON.parse(raw):null;}catch(e){return null;}}
-function sbSet(d){try{localStorage.setItem('hu_data',JSON.stringify(d));return true;}catch(e){console.error('save failed',e);return false;}}
+async function sbGet(){try{const snap=await window._fbGetDoc(window._fbDoc(window._fbDb,'bills','main'));if(snap.exists()){return snap.data().data||null;}return null;}catch(e){console.error('fbGet',e);return null;}}
+async function sbSet(d){try{await window._fbSetDoc(window._fbDoc(window._fbDb,'bills','main'),{data:d,updated_at:new Date().toISOString()},{merge:true});return true;}catch(e){console.error('fbSet',e);return false;}}
 
 function setSyncStatus(s,msg){
   const dots=[document.getElementById('sync-dot'),document.getElementById('mob-sync-dot')];
@@ -519,21 +519,23 @@ function setSyncStatus(s,msg){
   if(lbl)lbl.textContent=msg||{ok:'Synced',syncing:'Saving…',err:'Sync error'}[s]||'';
 }
 
-function loadFromDB(){
-  const data=sbGet();
+async function loadFromDB(){
+  setSyncStatus('syncing','Syncing…');
+  const data=await sbGet();
   if(data){
     ['bills','billData','persons','groups','people','currSym','customIdCounter','groupIdCounter'].forEach(k=>{if(data[k]!==undefined)state[k]=data[k];});
-    setSyncStatus('ok','Saved locally');
+    setSyncStatus('ok','Synced');
   } else {
-    setSyncStatus('ok','Ready');
+    setSyncStatus('err','No data');
   }
   applyTheme();buildSwatches();buildPersonsList();buildGroupsList();buildBillList();buildMobBillList();loadBillValues();loadMobBillValues();updateHomeBadge();update();
   document.getElementById('ppl-val').textContent=state.people;
   syncCurrPills();syncCurrSelect();syncDropdowns();buildCal();updatePickerSelected();updatePickerDropStyles();
 }
 
-function saveToDB(){
-  const ok=sbSet({bills:state.bills,billData:state.billData,persons:state.persons,groups:state.groups,people:state.people,currSym:state.currSym,customIdCounter:state.customIdCounter,groupIdCounter:state.groupIdCounter});
+async function saveToDB(){
+  setSyncStatus('syncing','Saving…');
+  const ok=await sbSet({bills:state.bills,billData:state.billData,persons:state.persons,groups:state.groups,people:state.people,currSym:state.currSym,customIdCounter:state.customIdCounter,groupIdCounter:state.groupIdCounter});
   setSyncStatus(ok?'ok':'err',ok?'Saved':'Error');
 }
 function scheduleSave(){if(!isEditor)return;clearTimeout(syncTimeout);syncTimeout=setTimeout(saveToDB,1200);}
@@ -1072,7 +1074,7 @@ function allowLocation(){
 function denyLocation(){
   hideLocPrompt();
   localStorage.setItem('hu_loc_asked','1');
-  setWeatherError('No location');
+  setWeatherError('tap to retry');
 }
 function checkLocationPermission(){
   const asked=localStorage.getItem('hu_loc_asked');
@@ -1093,18 +1095,29 @@ function loadWeather(force){
   document.getElementById('w-desc').textContent='locating...';
   navigator.geolocation.getCurrentPosition(pos=>{
     const {latitude:lat,longitude:lon}=pos.coords;
-    Promise.all([
-      fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weathercode&temperature_unit=celsius&timezone=auto`).then(r=>r.json()),
-      fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`).then(r=>r.json())
-    ]).then(([weather,geo])=>{
-        const city=geo.address?.city||geo.address?.town||geo.address?.village||geo.address?.county||'';
-        const w={temp:Math.round(weather.current.temperature_2m),code:weather.current.weathercode,city};
+    // Fetch weather first, then reverse geocode via open-meteo's own geocoding
+    fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weathercode&temperature_unit=celsius&timezone=auto`)
+      .then(r=>r.json())
+      .then(weather=>{
+        // Get city via reverse geocode API that allows browser requests
+        return fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json&accept-language=en`)
+          .then(r=>r.json())
+          .then(geo=>{
+            const city=geo.address?.city||geo.address?.town||geo.address?.village||geo.address?.county||'';
+            return {temp:Math.round(weather.current.temperature_2m),code:weather.current.weathercode,city};
+          })
+          .catch(()=>({temp:Math.round(weather.current.temperature_2m),code:weather.current.weathercode,city:''}));
+      })
+      .then(w=>{
         localStorage.setItem('hu_weather',JSON.stringify(w));
         localStorage.setItem('hu_weather_time',Date.now().toString());
         applyWeather(w);
       })
       .catch(()=>setWeatherError('Offline'));
-  },()=>setWeatherError('No GPS'));
+  },err=>{
+    console.error('GPS error:',err.code,err.message);
+    setWeatherError(err.code===1?'Permission denied':err.code===2?'GPS unavailable':'Timeout');
+  },{timeout:10000,maximumAge:60000});
 }
 function applyWeather(w){
   document.getElementById('w-icon').textContent=WMO_ICONS[w.code]||'🌡️';
@@ -1113,6 +1126,12 @@ function applyWeather(w){
   const cityEl=document.getElementById('w-city');
   if(cityEl)cityEl.textContent=w.city?'· '+w.city:'';
 }
+function retryWeather(){
+  localStorage.removeItem('hu_weather');
+  localStorage.removeItem('hu_weather_time');
+  const asked=localStorage.getItem('hu_loc_asked');
+  if(asked){loadWeather(true);}else{showLocPrompt();}
+}
 function setWeatherError(msg){
   document.getElementById('w-icon').textContent='🌡️';
   document.getElementById('w-temp').textContent='--';
@@ -1120,8 +1139,9 @@ function setWeatherError(msg){
 }
 initDropdowns();buildYearOpts();buildSwatches();buildPersonsList();buildGroupsList();buildBillList();buildMobBillList();updateHomeBadge();buildCal();applyTheme();applyEditMode();update();updatePickerSelected();updatePickerDropStyles();
 window.addEventListener('resize',()=>{applyEditMode();applyTheme();});
-loadFromDB();
-checkLocationPermission();
+function startSync(){loadFromDB();setInterval(()=>loadFromDB(),30000);}
+window._startSync=startSync;
+if(window._fbReady){startSync();}checkLocationPermission();
 </script>
 
 
@@ -1158,5 +1178,19 @@ checkLocationPermission();
 
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+
+<script type="module">
+  import{initializeApp}from'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+  import{getFirestore,doc,getDoc,setDoc}from'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+  const _cfg={apiKey:"AIzaSyBz1nV-Z8RULvVV0kGChaW96YdzB91vyFU",authDomain:"hudincec-household-bills.firebaseapp.com",projectId:"hudincec-household-bills",storageBucket:"hudincec-household-bills.firebasestorage.app",messagingSenderId:"517898288739",appId:"1:517898288739:web:343a6f7bfe9b46cf4a0256"};
+  const _app=initializeApp(_cfg);
+  const _db=getFirestore(_app);
+  window._fbDb=_db;
+  window._fbDoc=doc;
+  window._fbGetDoc=getDoc;
+  window._fbSetDoc=setDoc;
+  window._fbReady=true;
+  if(window._startSync){window._startSync();}
+</script>
 </body>
 </html>
