@@ -1,4 +1,4 @@
-<!-- Home Utilities v0.5.5 -->
+<!-- Home Utilities v0.5.6 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -26,7 +26,7 @@ body.dark{background:#111;color:#f2f2f7}
   body{display:block}
   #sidebar{display:none}
   #main{padding:0 0 calc(70px + env(safe-area-inset-bottom, 0px)) 0;min-height:100vh;overflow-y:auto;display:block}
-  #mob-header{display:flex;flex-direction:column;align-items:stretch;justify-content:flex-start;padding:0;padding-top:env(safe-area-inset-top,24px);background:#fff;border-bottom:0.5px solid rgba(0,0,0,0.08);position:sticky;top:0;z-index:50}
+  #mob-header{display:flex;flex-direction:column;align-items:stretch;justify-content:flex-start;padding:0;background:#fff;border-bottom:0.5px solid rgba(0,0,0,0.08);position:sticky;top:env(safe-area-inset-top,24px);z-index:50}
   body.dark #mob-header{background:#1c1c1e;border-color:rgba(255,255,255,0.08)}
   #tab-bar{display:flex;justify-content:space-around;align-items:center;padding:8px 0 env(safe-area-inset-bottom,12px);background:#fff;border-top:0.5px solid rgba(0,0,0,0.08);position:fixed;bottom:0;left:0;right:0;z-index:50}
   body.dark #tab-bar{background:#1c1c1e;border-color:rgba(255,255,255,0.08)}
@@ -288,6 +288,7 @@ body.dark .date-opt:hover{background:rgba(255,255,255,0.06)}
 <div id="main">
 
   <!-- Mobile header -->
+  <div id="status-bar" style="height:env(safe-area-inset-top,24px);background:#1d9e75;position:sticky;top:0;z-index:51;"></div>
   <div id="mob-header">
     <div class="app-banner">
       <div class="banner-icon">
@@ -308,7 +309,7 @@ body.dark .date-opt:hover{background:rgba(255,255,255,0.06)}
     <div class="mob-actions">
       <button class="mob-lock" onclick="toggleLock()"><i class="ti ti-lock-open" id="mob-lock-icon" style="font-size:13px;"></i><span id="mob-lock-label">Edit</span></button>
       <div class="mob-sync" id="mob-sync-dot"></div>
-      <span style="font-size:10px;color:#aeaeb2;font-weight:500;margin-right:2px;">v0.5.5</span>
+      <span style="font-size:10px;color:#aeaeb2;font-weight:500;margin-right:2px;">v0.5.6</span>
       <div style="display:flex;align-items:center;gap:4px;"><div class="sync-dot" id="sync-dot"></div><span id="sync-label" style="font-size:10px;color:#aeaeb2;"></span></div>
     </div>
     </div>
@@ -472,7 +473,7 @@ body.dark .date-opt:hover{background:rgba(255,255,255,0.06)}
         </div>
       </div>
     </div>
-    <div style="padding:16px 20px 8px;text-align:center;font-size:11px;color:#aeaeb2;">Home Utilities v0.5.5</div>
+    <div style="padding:16px 20px 8px;text-align:center;font-size:11px;color:#aeaeb2;">Home Utilities v0.5.6</div>
   </div>
 
 </div><!-- /main -->
@@ -485,7 +486,7 @@ body.dark .date-opt:hover{background:rgba(255,255,255,0.06)}
 </div>
 
 <script>
-const CORRECT_PIN='2708'; const APP_VERSION='0.5.5';
+const CORRECT_PIN='2708'; const APP_VERSION='0.5.6';
 
 const defaultBills=[
   {id:'electricity',label:'Electricity',icon:'ti-bolt',bg:'#e6f1fb',ic:'#185fa5',custom:false,assignedTo:[]},
@@ -570,6 +571,7 @@ function applyEditMode(){
 function applyTheme(){
   syncCurrSelect();
   const ba=document.getElementById('banner-accent');if(ba)ba.style.color=state.accentColor;
+  const sb=document.getElementById('status-bar');if(sb)sb.style.background=state.accentColor;
   const ibg=document.getElementById('icon-bg');if(ibg)ibg.setAttribute('fill',state.accentColor);
   document.body.classList.toggle('dark',state.isDark);
   document.querySelectorAll('.tab-item').forEach(el=>{el.style.color=el.classList.contains('active')?state.accentColor:'';});
