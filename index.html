@@ -1,4 +1,4 @@
-<!-- Home Utilities v0.6.4 -->
+<!-- Home Utilities v0.6.5 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -316,7 +316,7 @@ body.dark .weather-desc{color:#aeaeb2}
     <div class="mob-actions">
       <button class="mob-lock" onclick="toggleLock()"><i class="ti ti-lock-open" id="mob-lock-icon" style="font-size:13px;"></i><span id="mob-lock-label">Edit</span></button>
       <div class="mob-sync" id="mob-sync-dot"></div>
-      <span style="font-size:10px;color:#aeaeb2;font-weight:500;margin-right:2px;">v0.6.4</span>
+      <span style="font-size:10px;color:#aeaeb2;font-weight:500;margin-right:2px;">v0.6.5</span>
       <div style="display:flex;align-items:center;gap:4px;"><div class="sync-dot" id="sync-dot"></div><span id="sync-label" style="font-size:10px;color:#aeaeb2;"></span></div>
     </div>
     </div>
@@ -475,7 +475,7 @@ body.dark .weather-desc{color:#aeaeb2}
         </div>
       </div>
     </div>
-    <div style="padding:16px 20px 8px;text-align:center;font-size:11px;color:#aeaeb2;">Home Utilities v0.6.4</div>
+    <div style="padding:16px 20px 8px;text-align:center;font-size:11px;color:#aeaeb2;">Home Utilities v0.6.5</div>
   </div>
 
 </div><!-- /main -->
@@ -488,7 +488,7 @@ body.dark .weather-desc{color:#aeaeb2}
 </div>
 
 <script>
-const CORRECT_PIN='2708'; const APP_VERSION='0.6.4';
+const CORRECT_PIN='2708'; const APP_VERSION='0.6.5';
 
 const defaultBills=[
   {id:'electricity',label:'Electricity',icon:'ti-bolt',bg:'#e6f1fb',ic:'#185fa5',custom:false,assignedTo:[]},
@@ -1103,7 +1103,8 @@ function loadWeather(force){
         return fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json&accept-language=en`)
           .then(r=>r.json())
           .then(geo=>{
-            const city=geo.address?.city||geo.address?.town||geo.address?.village||geo.address?.county||'';
+            const rawCity=geo.address?.city||geo.address?.town||geo.address?.village||geo.address?.county||'';
+            const city=rawCity.replace(/^(City of |Municipality of |County of |District of )/i,'').trim();
             return {temp:Math.round(weather.current.temperature_2m),code:weather.current.weathercode,city};
           })
           .catch(()=>({temp:Math.round(weather.current.temperature_2m),code:weather.current.weathercode,city:''}));
