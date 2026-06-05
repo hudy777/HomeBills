@@ -1,4 +1,4 @@
-<!-- Home Utilities v0.5.7 -->
+<!-- Home Utilities v0.5.8 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -308,7 +308,7 @@ body.dark .date-opt:hover{background:rgba(255,255,255,0.06)}
     <div class="mob-actions">
       <button class="mob-lock" onclick="toggleLock()"><i class="ti ti-lock-open" id="mob-lock-icon" style="font-size:13px;"></i><span id="mob-lock-label">Edit</span></button>
       <div class="mob-sync" id="mob-sync-dot"></div>
-      <span style="font-size:10px;color:#aeaeb2;font-weight:500;margin-right:2px;">v0.5.7</span>
+      <span style="font-size:10px;color:#aeaeb2;font-weight:500;margin-right:2px;">v0.5.8</span>
       <div style="display:flex;align-items:center;gap:4px;"><div class="sync-dot" id="sync-dot"></div><span id="sync-label" style="font-size:10px;color:#aeaeb2;"></span></div>
     </div>
     </div>
@@ -472,7 +472,7 @@ body.dark .date-opt:hover{background:rgba(255,255,255,0.06)}
         </div>
       </div>
     </div>
-    <div style="padding:16px 20px 8px;text-align:center;font-size:11px;color:#aeaeb2;">Home Utilities v0.5.7</div>
+    <div style="padding:16px 20px 8px;text-align:center;font-size:11px;color:#aeaeb2;">Home Utilities v0.5.8</div>
   </div>
 
 </div><!-- /main -->
@@ -485,7 +485,7 @@ body.dark .date-opt:hover{background:rgba(255,255,255,0.06)}
 </div>
 
 <script>
-const CORRECT_PIN='2708'; const APP_VERSION='0.5.7';
+const CORRECT_PIN='2708'; const APP_VERSION='0.5.8';
 
 const defaultBills=[
   {id:'electricity',label:'Electricity',icon:'ti-bolt',bg:'#e6f1fb',ic:'#185fa5',custom:false,assignedTo:[]},
@@ -494,6 +494,7 @@ const defaultBills=[
   {id:'trash',label:'Trash',icon:'ti-trash',bg:'#faeeda',ic:'#854f0b',custom:false,assignedTo:[]},
   {id:'television',label:'Television',icon:'ti-device-tv',bg:'#fbeaf0',ic:'#993556',custom:false,assignedTo:[]},
 ];
+const groupColors=['#7f77dd','#1d9e75','#378add','#d4537e','#ef9f27','#e24b4a','#639922','#5f5e5a'];
 const custCols=[{bg:'#f1efe8',ic:'#5f5e5a'},{bg:'#eaf3de',ic:'#3b6d11'},{bg:'#fcebeb',ic:'#a32d2d'},{bg:'#faece7',ic:'#993c1d'}];
 const pColors=['#7f77dd','#1d9e75','#d85a30','#378add','#d4537e','#ef9f27','#e24b4a','#639922'];
 const pBgs=['#eeedfe','#e1f5ee','#faece7','#e6f1fb','#fbeaf0','#faeeda','#fcebeb','#eaf3de'];
@@ -668,7 +669,11 @@ function chgPeople(d){if(!isEditor)return;state.people=Math.max(1,Math.min(20,st
 function buildPersonsList(){const wrap=document.getElementById('persons-wrap');if(state.people<=1){wrap.innerHTML='';return;}wrap.innerHTML=state.persons.map((p,i)=>`<div class="person-row"><div class="pdot" style="width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;flex-shrink:0;background:${pBgs[i%pBgs.length]};color:${pColors[i%pColors.length]};">${p.name.charAt(0).toUpperCase()}</div><input class="pname-inp" value="${p.name}" oninput="renamePerson('${p.id}',this.value)" ${!isEditor?'disabled':''}/></div>`).join('');}
 function renamePerson(id,name){const p=state.persons.find(x=>x.id===id);if(p){p.name=name;}buildBillList();buildMobBillList();update();scheduleSave();}
 
-function addGroup(){if(!isEditor)return;state.groups.push({id:'g'+(++state.groupIdCounter),name:'Group '+state.groupIdCounter,personIds:[]});buildGroupsList();scheduleSave();}
+function addGroup(){if(!isEditor)return;const ci=(state.groupIdCounter)%groupColors.length;state.groups.push({id:'g'+(++state.groupIdCounter),name:'Group '+state.groupIdCounter,personIds:[],color:groupColors[ci]});buildGroupsList();scheduleSave();}
+function setGroupColor(gid,color){
+  const g=state.groups.find(x=>x.id===gid);
+  if(g){g.color=color;buildGroupsList();update();scheduleSave();}
+}
 function removeGroup(gid){if(!isEditor)return;state.groups=state.groups.filter(g=>g.id!==gid);buildGroupsList();update();scheduleSave();}
 function renameGroup(gid,name){const g=state.groups.find(x=>x.id===gid);if(g){g.name=name;scheduleSave();}}
 function toggleGroupPerson(gid,pid){if(!isEditor)return;const g=state.groups.find(x=>x.id===gid);if(!g)return;const idx=g.personIds.indexOf(pid);if(idx>=0)g.personIds.splice(idx,1);else g.personIds.push(pid);buildGroupsList();update();scheduleSave();}
@@ -676,7 +681,8 @@ function buildGroupsList(){
   const wrap=document.getElementById('groups-wrap'),msg=document.getElementById('no-groups-msg'),agb=document.getElementById('add-grp-btn');
   if(state.people<=1){wrap.innerHTML='';if(msg)msg.style.display='block';if(agb)agb.style.display='none';return;}
   if(msg)msg.style.display='none';if(agb)agb.style.display=isEditor?'flex':'none';
-  wrap.innerHTML=state.groups.map(g=>{const chips=state.persons.map((p,i)=>`<span class="chip${g.personIds.includes(p.id)?' on':''}" onclick="${isEditor?`toggleGroupPerson('${g.id}','${p.id}')`:''}" style="${g.personIds.includes(p.id)?'background:'+state.accentColor+';color:#fff;border-color:transparent;':''};cursor:${isEditor?'pointer':'default'};">${p.name}</span>`).join('');return`<div class="group-card"><div class="group-hdr"><div style="width:20px;height:20px;border-radius:5px;background:#eeedfe;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><i class="ti ti-users" style="font-size:11px;color:#534ab7;"></i></div><input class="gname-inp" value="${g.name}" oninput="renameGroup('${g.id}',this.value)" ${!isEditor?'disabled':''}/>${isEditor?`<button class="del-btn" onclick="removeGroup('${g.id}')" style="display:flex;"><i class="ti ti-x" style="font-size:12px;"></i></button>`:''}</div><div class="group-chips">${chips}</div></div>`;}).join('');
+  wrap.innerHTML=state.groups.map(g=>{const chips=state.persons.map((p,i)=>`<span class="chip${g.personIds.includes(p.id)?' on':''}" onclick="${isEditor?`toggleGroupPerson('${g.id}','${p.id}')`:''}" style="${g.personIds.includes(p.id)?'background:'+state.accentColor+';color:#fff;border-color:transparent;':''};cursor:${isEditor?'pointer':'default'};">${p.name}</span>`).join('');const gc=g.color||groupColors[0];
+    const swatches=isEditor?`<div style="display:flex;gap:4px;padding:4px 10px 8px;flex-wrap:wrap;">${groupColors.map(c=>`<div onclick="setGroupColor('${g.id}','${c}')" style="width:18px;height:18px;border-radius:50%;background:${c};cursor:pointer;border:2px solid ${c===gc?'#fff':'transparent'};outline:2px solid ${c===gc?c:'transparent'};flex-shrink:0;"></div>`).join('')}</div>`:'';    return`<div class="group-card"><div class="group-hdr"><div style="width:22px;height:22px;border-radius:6px;background:${gc};display:flex;align-items:center;justify-content:center;flex-shrink:0;"><i class="ti ti-users" style="font-size:11px;color:#fff;"></i></div><input class="gname-inp" value="${g.name}" oninput="renameGroup('${g.id}',this.value)" ${!isEditor?'disabled':''}/>${isEditor?`<button class="del-btn" onclick="removeGroup('${g.id}')" style="display:flex;"><i class="ti ti-x" style="font-size:12px;"></i></button>`:''}</div>${swatches}<div class="group-chips">${chips}</div></div>`;}).join('');
 }
 
 function getPersonShare(pid){let t=0;state.bills.forEach(b=>{const v=parseFloat(document.getElementById('mob-inp-'+b.id)?.value||document.getElementById('inp-'+b.id)?.value)||0;const ass=b.assignedTo.length===0?state.persons.map(p=>p.id):b.assignedTo;if(ass.includes(pid))t+=v/ass.length;});return t;}
@@ -716,7 +722,7 @@ function renderBdPerson(total,m){
   if(chartType==='bar'){
     let html='';
     if(state.groups.length>0){
-      state.groups.forEach(g=>{if(!g.personIds.length)return;const share=g.personIds.reduce((s,pid)=>s+getPersonShare(pid),0)*m;const pct=total>0?Math.round((share/(total*m))*100):0;html+=`<div class="bdi"><div style="width:30px;height:30px;border-radius:9px;background:#eeedfe;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><i class="ti ti-users" style="color:#534ab7;font-size:14px;"></i></div><div class="bd-info"><div class="bd-name">${g.name} <span style="font-size:11px;color:#aeaeb2;">(${g.personIds.length})</span></div><div class="bar-wrap"><div class="bar" style="background:${state.accentColor};width:${pct}%;"></div></div></div><div class="bd-amt">${state.currSym}${share.toFixed(2)} <span class="bd-pct">${pct}%</span></div></div>`;});
+      state.groups.forEach(g=>{if(!g.personIds.length)return;const share=g.personIds.reduce((s,pid)=>s+getPersonShare(pid),0)*m;const pct=total>0?Math.round((share/(total*m))*100):0;html+=`<div class="bdi"><div style="width:30px;height:30px;border-radius:9px;background:${g.color||'#7f77dd'};display:flex;align-items:center;justify-content:center;flex-shrink:0;"><i class="ti ti-users" style="color:#fff;font-size:14px;"></i></div><div class="bd-info"><div class="bd-name">${g.name} <span style="font-size:11px;color:#aeaeb2;">(${g.personIds.length})</span></div><div class="bar-wrap"><div class="bar" style="background:${state.accentColor};width:${pct}%;"></div></div></div><div class="bd-amt">${state.currSym}${share.toFixed(2)} <span class="bd-pct">${pct}%</span></div></div>`;});
       state.persons.filter(p=>!state.groups.some(g=>g.personIds.includes(p.id))).forEach((p,i)=>{const share=getPersonShare(p.id)*m;const pct=total>0?Math.round((share/(total*m))*100):0;const idx=state.persons.indexOf(p)%pColors.length;html+=`<div class="bdi"><div class="pdot" style="background:${pBgs[idx]};color:${pColors[idx]};">${p.name.charAt(0).toUpperCase()}</div><div class="bd-info"><div class="bd-name">${p.name}</div><div class="bar-wrap"><div class="bar" style="background:${state.accentColor};width:${pct}%;"></div></div></div><div class="bd-amt">${state.currSym}${share.toFixed(2)} <span class="bd-pct">${pct}%</span></div></div>`;});
     } else {
       state.persons.forEach((p,i)=>{const share=getPersonShare(p.id)*m;const pct=total>0?Math.round((share/(total*m))*100):0;const idx=i%pColors.length;html+=`<div class="bdi"><div class="pdot" style="background:${pBgs[idx]};color:${pColors[idx]};">${p.name.charAt(0).toUpperCase()}</div><div class="bd-info"><div class="bd-name">${p.name}</div><div class="bar-wrap"><div class="bar" style="background:${state.accentColor};width:${pct}%;"></div></div></div><div class="bd-amt">${state.currSym}${share.toFixed(2)} <span class="bd-pct">${pct}%</span></div></div>`;});
@@ -879,7 +885,7 @@ function update(){
         if(!g.personIds.length)return;
         labels.push(g.name+' ('+g.personIds.length+')');
         values.push(g.personIds.reduce((s,pid)=>s+getPersonShare(pid),0));
-        colors.push('#7f77dd');
+        colors.push(g.color||'#7f77dd');
       });
       state.persons.filter(p=>!state.groups.some(g=>g.personIds.includes(p.id))).forEach((p,i)=>{
         labels.push(p.name);
