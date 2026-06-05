@@ -89,11 +89,11 @@ body.dark .th-btn{color:#aeaeb2}
 
 /* STAT CARDS */
 .stat-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-bottom:24px}
-.stat-card{background:#fff;border-radius:16px;border:0.5px solid rgba(0,0,0,0.08);padding:20px 22px}
+.stat-card{background:#fff;border-radius:14px;border:0.5px solid rgba(0,0,0,0.08);padding:12px 12px;overflow:hidden}
 body.dark .stat-card{background:#1c1c1e;border-color:rgba(255,255,255,0.08)}
-.stat-label{font-size:12px;color:#6e6e73;margin-bottom:6px;font-weight:500;text-transform:uppercase;letter-spacing:0.05em}
-.stat-val{font-size:28px;font-weight:700;line-height:1}
-.stat-sub{font-size:12px;color:#6e6e73;margin-top:4px}
+.stat-label{font-size:10px;color:#6e6e73;margin-bottom:4px;font-weight:500;text-transform:uppercase;letter-spacing:0.05em}
+.stat-val{font-size:18px;font-weight:700;line-height:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.stat-sub{font-size:11px;color:#6e6e73;margin-top:3px}
 
 /* PANEL */
 .panel{background:#fff;border-radius:16px;border:0.5px solid rgba(0,0,0,0.08);overflow:hidden;margin-bottom:20px}
@@ -276,6 +276,7 @@ body.dark .date-opt:hover{background:rgba(255,255,255,0.06)}
     <div class="mob-actions">
       <button class="mob-lock" onclick="toggleLock()"><i class="ti ti-lock-open" id="mob-lock-icon" style="font-size:13px;"></i><span id="mob-lock-label">Edit</span></button>
       <div class="mob-sync" id="mob-sync-dot"></div>
+      <span style="font-size:10px;color:#aeaeb2;font-weight:500;margin-right:2px;">v0.5.1</span>
       <div style="display:flex;align-items:center;gap:4px;"><div class="sync-dot" id="sync-dot"></div><span id="sync-label" style="font-size:10px;color:#aeaeb2;"></span></div>
     </div>
   </div>
@@ -444,6 +445,7 @@ body.dark .date-opt:hover{background:rgba(255,255,255,0.06)}
         </div>
       </div>
     </div>
+    <div style="padding:16px 20px 8px;text-align:center;font-size:11px;color:#aeaeb2;">Home Utilities v0.5.1</div>
   </div>
 
 </div><!-- /main -->
