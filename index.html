@@ -454,7 +454,7 @@ body.dark .pin-key:hover{background:rgba(255,255,255,0.1)}
 </div>
 
 <script>
-const CORRECT_PIN='2303';
+const CORRECT_PIN='2708';
 
 const defaultBills=[
   {id:'electricity',label:'Electricity',icon:'ti-bolt',bg:'#e6f1fb',ic:'#185fa5',custom:false,assignedTo:[]},
@@ -470,7 +470,7 @@ const months=['January','February','March','April','May','June','July','August',
 const suggested=[{hex:'#378add',name:'Blue'},{hex:'#1d9e75',name:'Teal'},{hex:'#7f77dd',name:'Purple'},{hex:'#d4537e',name:'Pink'},{hex:'#ef9f27',name:'Amber'},{hex:'#e24b4a',name:'Red'}];
 
 let state={bills:defaultBills.map(b=>({...b,assignedTo:[]})),billData:{},persons:[{id:'p1',name:'Person 1'}],groups:[],people:1,currSym:'€',accentColor:'#378add',accentName:'Blue',isDark:false,period:'monthly',bdMode:'bill',customIdCounter:0,groupIdCounter:0};
-let isEditor=true,pinBuffer='',openAssignId=null,syncTimeout=null;
+let isEditor=false,pinBuffer='',openAssignId=null,syncTimeout=null;
 
 function isMobile(){return window.innerWidth<768;}
 
