@@ -454,8 +454,7 @@ body.dark .pin-key:hover{background:rgba(255,255,255,0.1)}
 </div>
 
 <script>
-const SUPABASE_URL='https://lktqdwguszavavtumejh.supabase.co';
-const SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxrdHFkd2d1c3phdmF2dHVtZWpoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA2NTYzNTYsImV4cCI6MjA5NjIzMjM1Nn0.nZ1lkMbvhyLfWbIaCfU49e0y1RM3hYug45rL0YSo0ig';
+const firebaseConfig={apiKey:"AIzaSyBz1nV-Z8RULvVV0kGChaW96YdzB91vyFU",authDomain:"hudincec-household-bills.firebaseapp.com",projectId:"hudincec-household-bills",storageBucket:"hudincec-household-bills.firebasestorage.app",messagingSenderId:"517898288739",appId:"1:517898288739:web:343a6f7bfe9b46cf4a0256"};
 const CORRECT_PIN='2303';
 
 const defaultBills=[
@@ -476,8 +475,8 @@ let isEditor=true,pinBuffer='',openAssignId=null,syncTimeout=null;
 
 function isMobile(){return window.innerWidth<768;}
 
-async function sbGet(){try{const r=await fetch(`${SUPABASE_URL}/rest/v1/bills?id=eq.main&select=data`,{headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY}});if(!r.ok)return null;const j=await r.json();return j&&j[0]?j[0].data:null;}catch(e){return null;}}
-async function sbSet(d){try{const r=await fetch(`${SUPABASE_URL}/rest/v1/bills?id=eq.main`,{method:'PATCH',headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':'application/json','Prefer':'return=minimal'},body:JSON.stringify({data:d,updated_at:new Date().toISOString()})});return r.ok;}catch(e){return false;}}
+async function sbGet(){try{const snap=await window._fbGetDoc(window._fbDoc(window._fbDb,'bills','main'));if(snap.exists()){return snap.data().data||null;}return null;}catch(e){console.error('fbGet',e);return null;}}
+async function sbSet(d){try{await window._fbSetDoc(window._fbDoc(window._fbDb,'bills','main'),{data:d,updated_at:new Date().toISOString()},{merge:true});return true;}catch(e){console.error('fbSet',e);return false;}}
 
 function setSyncStatus(s,msg){
   const dots=[document.getElementById('sync-dot'),document.getElementById('mob-sync-dot')];
@@ -678,9 +677,10 @@ function update(){
   applyTheme();
 }
 
-initDropdowns();buildSwatches();buildPersonsList();buildGroupsList();buildBillList();buildMobBillList();updateHomeBadge();applyTheme();applyEditMode();update();loadFromDB();
-setInterval(()=>loadFromDB(),30000);
+initDropdowns();buildSwatches();buildPersonsList();buildGroupsList();buildBillList();buildMobBillList();updateHomeBadge();applyTheme();applyEditMode();update();
 window.addEventListener('resize',()=>{applyEditMode();applyTheme();});
+function startSync(){loadFromDB();setInterval(()=>loadFromDB(),30000);}
+if(window._fbReady){startSync();}else{document.addEventListener('fbready',startSync);}
 </script>
 
 <!-- PIN overlay -->
@@ -699,6 +699,20 @@ window.addEventListener('resize',()=>{applyEditMode();applyTheme();});
     <div class="pin-err" id="pin-err"></div>
   </div>
 </div>
+
+
+<script type="module">
+  import{initializeApp}from'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+  import{getFirestore,doc,getDoc,setDoc}from'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+  const app=initializeApp(firebaseConfig);
+  const db=getFirestore(app);
+  window._fbDb=db;
+  window._fbDoc=doc;
+  window._fbGetDoc=getDoc;
+  window._fbSetDoc=setDoc;
+  window._fbReady=true;
+  document.dispatchEvent(new Event('fbready'));
+</script>
 
 </body>
 </html>
