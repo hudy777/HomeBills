@@ -454,7 +454,6 @@ body.dark .pin-key:hover{background:rgba(255,255,255,0.1)}
 </div>
 
 <script>
-const firebaseConfig={apiKey:"AIzaSyBz1nV-Z8RULvVV0kGChaW96YdzB91vyFU",authDomain:"hudincec-household-bills.firebaseapp.com",projectId:"hudincec-household-bills",storageBucket:"hudincec-household-bills.firebasestorage.app",messagingSenderId:"517898288739",appId:"1:517898288739:web:343a6f7bfe9b46cf4a0256"};
 const CORRECT_PIN='2303';
 
 const defaultBills=[
@@ -680,7 +679,8 @@ function update(){
 initDropdowns();buildSwatches();buildPersonsList();buildGroupsList();buildBillList();buildMobBillList();updateHomeBadge();applyTheme();applyEditMode();update();
 window.addEventListener('resize',()=>{applyEditMode();applyTheme();});
 function startSync(){loadFromDB();setInterval(()=>loadFromDB(),30000);}
-if(window._fbReady){startSync();}else{document.addEventListener('fbready',startSync);}
+window._startSync=startSync;
+if(window._fbReady){startSync();}
 </script>
 
 <!-- PIN overlay -->
@@ -701,18 +701,21 @@ if(window._fbReady){startSync();}else{document.addEventListener('fbready',startS
 </div>
 
 
+
+
+
 <script type="module">
   import{initializeApp}from'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
   import{getFirestore,doc,getDoc,setDoc}from'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
-  const app=initializeApp(firebaseConfig);
-  const db=getFirestore(app);
-  window._fbDb=db;
+  const _cfg={apiKey:"AIzaSyBz1nV-Z8RULvVV0kGChaW96YdzB91vyFU",authDomain:"hudincec-household-bills.firebaseapp.com",projectId:"hudincec-household-bills",storageBucket:"hudincec-household-bills.firebasestorage.app",messagingSenderId:"517898288739",appId:"1:517898288739:web:343a6f7bfe9b46cf4a0256"};
+  const _app=initializeApp(_cfg);
+  const _db=getFirestore(_app);
+  window._fbDb=_db;
   window._fbDoc=doc;
   window._fbGetDoc=getDoc;
   window._fbSetDoc=setDoc;
   window._fbReady=true;
-  document.dispatchEvent(new Event('fbready'));
+  if(window._startSync){window._startSync();}
 </script>
-
 </body>
 </html>
