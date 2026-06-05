@@ -1,4 +1,4 @@
-<!-- Home Utilities v0.6.0 -->
+<!-- Home Utilities v0.6.1 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -316,7 +316,7 @@ body.dark .weather-desc{color:#aeaeb2}
     <div class="mob-actions">
       <button class="mob-lock" onclick="toggleLock()"><i class="ti ti-lock-open" id="mob-lock-icon" style="font-size:13px;"></i><span id="mob-lock-label">Edit</span></button>
       <div class="mob-sync" id="mob-sync-dot"></div>
-      <span style="font-size:10px;color:#aeaeb2;font-weight:500;margin-right:2px;">v0.6.0</span>
+      <span style="font-size:10px;color:#aeaeb2;font-weight:500;margin-right:2px;">v0.6.1</span>
       <div style="display:flex;align-items:center;gap:4px;"><div class="sync-dot" id="sync-dot"></div><span id="sync-label" style="font-size:10px;color:#aeaeb2;"></span></div>
     </div>
     </div>
@@ -328,7 +328,7 @@ body.dark .weather-desc{color:#aeaeb2}
       <div class="page-title">Overview</div>
       <div class="page-actions">
         <div class="badge-pill" id="home-badge">June 2026</div>
-        <div class="weather-pill" id="weather-pill" onclick="loadWeather(true)"><span id="w-icon" class="weather-icon">⟳</span><span id="w-temp" class="weather-temp">--</span><span id="w-desc" class="weather-desc">weather</span></div></div>
+        <div class="weather-pill" id="weather-pill" onclick="loadWeather(true)"><span id="w-icon" class="weather-icon">⟳</span><span id="w-temp" class="weather-temp">--</span><span id="w-desc" class="weather-desc">weather</span><span id="w-city" class="weather-desc" style="opacity:0.7;"></span></div></div>
     </div>
     <div style="padding:0 16px 0;display:block;" id="home-inner">
       <div class="stat-grid" style="padding:0;">
@@ -475,7 +475,7 @@ body.dark .weather-desc{color:#aeaeb2}
         </div>
       </div>
     </div>
-    <div style="padding:16px 20px 8px;text-align:center;font-size:11px;color:#aeaeb2;">Home Utilities v0.6.0</div>
+    <div style="padding:16px 20px 8px;text-align:center;font-size:11px;color:#aeaeb2;">Home Utilities v0.6.1</div>
   </div>
 
 </div><!-- /main -->
@@ -488,7 +488,7 @@ body.dark .weather-desc{color:#aeaeb2}
 </div>
 
 <script>
-const CORRECT_PIN='2708'; const APP_VERSION='0.6.0';
+const CORRECT_PIN='2708'; const APP_VERSION='0.6.1';
 
 const defaultBills=[
   {id:'electricity',label:'Electricity',icon:'ti-bolt',bg:'#e6f1fb',ic:'#185fa5',custom:false,assignedTo:[]},
@@ -1063,10 +1063,12 @@ function loadWeather(force){
   document.getElementById('w-desc').textContent='locating...';
   navigator.geolocation.getCurrentPosition(pos=>{
     const {latitude:lat,longitude:lon}=pos.coords;
-    fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weathercode&temperature_unit=celsius&timezone=auto`)
-      .then(r=>r.json())
-      .then(d=>{
-        const w={temp:Math.round(d.current.temperature_2m),code:d.current.weathercode};
+    Promise.all([
+      fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weathercode&temperature_unit=celsius&timezone=auto`).then(r=>r.json()),
+      fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`).then(r=>r.json())
+    ]).then(([weather,geo])=>{
+        const city=geo.address?.city||geo.address?.town||geo.address?.village||geo.address?.county||'';
+        const w={temp:Math.round(weather.current.temperature_2m),code:weather.current.weathercode,city};
         localStorage.setItem('hu_weather',JSON.stringify(w));
         localStorage.setItem('hu_weather_time',Date.now().toString());
         applyWeather(w);
@@ -1078,6 +1080,8 @@ function applyWeather(w){
   document.getElementById('w-icon').textContent=WMO_ICONS[w.code]||'🌡️';
   document.getElementById('w-temp').textContent=w.temp+'°C';
   document.getElementById('w-desc').textContent=WMO_DESC[w.code]||'';
+  const cityEl=document.getElementById('w-city');
+  if(cityEl)cityEl.textContent=w.city?'· '+w.city:'';
 }
 function setWeatherError(msg){
   document.getElementById('w-icon').textContent='🌡️';
