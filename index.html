@@ -1,4 +1,4 @@
-<!-- Home Utilities v0.5.1 -->
+<!-- Home Utilities v0.5.2 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -26,7 +26,7 @@ body.dark{background:#111;color:#f2f2f7}
   body{display:block}
   #sidebar{display:none}
   #main{padding:0 0 calc(70px + env(safe-area-inset-bottom, 0px)) 0;min-height:100vh;overflow-y:auto;display:block}
-  #mob-header{display:flex;align-items:center;justify-content:space-between;padding:14px 16px 6px;background:#fff;border-bottom:0.5px solid rgba(0,0,0,0.08);position:sticky;top:0;z-index:50}
+  #mob-header{display:flex;flex-direction:column;align-items:stretch;justify-content:flex-start;padding:0;background:#fff;border-bottom:0.5px solid rgba(0,0,0,0.08);position:sticky;top:0;z-index:50}
   body.dark #mob-header{background:#1c1c1e;border-color:rgba(255,255,255,0.08)}
   #tab-bar{display:flex;justify-content:space-around;align-items:center;padding:8px 0 env(safe-area-inset-bottom,12px);background:#fff;border-top:0.5px solid rgba(0,0,0,0.08);position:fixed;bottom:0;left:0;right:0;z-index:50}
   body.dark #tab-bar{background:#1c1c1e;border-color:rgba(255,255,255,0.08)}
@@ -68,7 +68,13 @@ body.dark
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
 
 /* ── MOBILE HEADER & TABS ─────────────────────────── */
-.mob-title{font-size:18px;font-weight:700}
+.mob-title{font-size:15px;font-weight:600}
+.app-banner{display:flex;align-items:center;gap:10px;padding:10px 16px 8px;background:#fff;border-bottom:0.5px solid rgba(0,0,0,0.08)}
+body.dark .app-banner{background:#1c1c1e;border-color:rgba(255,255,255,0.08)}
+.banner-icon{width:34px;height:34px;border-radius:9px;flex-shrink:0;overflow:hidden}
+.banner-name{font-size:17px;font-weight:700;color:#1c1c1e;letter-spacing:-0.3px}
+body.dark .banner-name{color:#f2f2f7}
+
 .mob-actions{display:flex;align-items:center;gap:8px}
 .mob-lock{display:flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;border:0.5px solid rgba(0,0,0,0.12);font-size:12px;font-weight:500;cursor:pointer;color:#6e6e73;background:transparent}
 body.dark .mob-lock{border-color:rgba(255,255,255,0.12);color:#aeaeb2}
@@ -283,12 +289,28 @@ body.dark .date-opt:hover{background:rgba(255,255,255,0.06)}
 
   <!-- Mobile header -->
   <div id="mob-header">
+    <div class="app-banner">
+      <div class="banner-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" width="34" height="34" viewBox="0 0 108 108">
+          <rect width="108" height="108" rx="24" fill="#1d9e75" id="icon-bg"/>
+          <rect width="108" height="108" rx="24" fill="#000" opacity="0.2" id="icon-shade"/>
+          <polygon points="54,14 88,38 88,92 20,92 20,38" fill="rgba(255,255,255,0.12)" stroke="white" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/>
+          <line x1="54" y1="14" x2="20" y2="38" stroke="white" stroke-width="4" stroke-linecap="round"/>
+          <rect x="30" y="66" width="12" height="22" rx="3" fill="white" opacity="0.7"/>
+          <rect x="48" y="54" width="12" height="34" rx="3" fill="white"/>
+          <rect x="66" y="60" width="12" height="28" rx="3" fill="white" opacity="0.85"/>
+        </svg>
+      </div>
+      <span class="banner-name">Home <span id="banner-accent" style="color:#1d9e75;">Utilities</span></span>
+    </div>
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 16px 6px;border-top:0.5px solid rgba(0,0,0,0.06);">
     <div class="mob-title" id="mob-title">Overview</div>
     <div class="mob-actions">
       <button class="mob-lock" onclick="toggleLock()"><i class="ti ti-lock-open" id="mob-lock-icon" style="font-size:13px;"></i><span id="mob-lock-label">Edit</span></button>
       <div class="mob-sync" id="mob-sync-dot"></div>
-      <span style="font-size:10px;color:#aeaeb2;font-weight:500;margin-right:2px;">v0.5.1</span>
+      <span style="font-size:10px;color:#aeaeb2;font-weight:500;margin-right:2px;">v0.5.2</span>
       <div style="display:flex;align-items:center;gap:4px;"><div class="sync-dot" id="sync-dot"></div><span id="sync-label" style="font-size:10px;color:#aeaeb2;"></span></div>
+    </div>
     </div>
   </div>
 
@@ -450,7 +472,7 @@ body.dark .date-opt:hover{background:rgba(255,255,255,0.06)}
         </div>
       </div>
     </div>
-    <div style="padding:16px 20px 8px;text-align:center;font-size:11px;color:#aeaeb2;">Home Utilities v0.5.1</div>
+    <div style="padding:16px 20px 8px;text-align:center;font-size:11px;color:#aeaeb2;">Home Utilities v0.5.2</div>
   </div>
 
 </div><!-- /main -->
@@ -463,7 +485,7 @@ body.dark .date-opt:hover{background:rgba(255,255,255,0.06)}
 </div>
 
 <script>
-const CORRECT_PIN='2708';
+const CORRECT_PIN='2708'; const APP_VERSION='0.5.2';
 
 const defaultBills=[
   {id:'electricity',label:'Electricity',icon:'ti-bolt',bg:'#e6f1fb',ic:'#185fa5',custom:false,assignedTo:[]},
@@ -483,8 +505,8 @@ let isEditor=false,pinBuffer='',openAssignId=null,syncTimeout=null,chartType='ba
 
 function isMobile(){return window.innerWidth<768;}
 
-async function sbGet(){try{const snap=await window._fbGetDoc(window._fbDoc(window._fbDb,'bills','main'));if(snap.exists()){return snap.data().data||null;}return null;}catch(e){console.error('fbGet',e);return null;}}
-async function sbSet(d){try{await window._fbSetDoc(window._fbDoc(window._fbDb,'bills','main'),{data:d,updated_at:new Date().toISOString()},{merge:true});return true;}catch(e){console.error('fbSet',e);return false;}}
+function sbGet(){try{const raw=localStorage.getItem('hu_data');return raw?JSON.parse(raw):null;}catch(e){return null;}}
+function sbSet(d){try{localStorage.setItem('hu_data',JSON.stringify(d));return true;}catch(e){console.error('save failed',e);return false;}}
 
 function setSyncStatus(s,msg){
   const dots=[document.getElementById('sync-dot'),document.getElementById('mob-sync-dot')];
@@ -493,22 +515,22 @@ function setSyncStatus(s,msg){
   if(lbl)lbl.textContent=msg||{ok:'Synced',syncing:'Saving…',err:'Sync error'}[s]||'';
 }
 
-async function loadFromDB(){
-  setSyncStatus('syncing','Loading…');
-  const data=await sbGet();
+function loadFromDB(){
+  const data=sbGet();
   if(data){
     ['bills','billData','persons','groups','people','currSym','customIdCounter','groupIdCounter'].forEach(k=>{if(data[k]!==undefined)state[k]=data[k];});
-    setSyncStatus('ok','Synced');
-  } else setSyncStatus('err','Offline');
+    setSyncStatus('ok','Saved locally');
+  } else {
+    setSyncStatus('ok','Ready');
+  }
   applyTheme();buildSwatches();buildPersonsList();buildGroupsList();buildBillList();buildMobBillList();loadBillValues();loadMobBillValues();updateHomeBadge();update();
   document.getElementById('ppl-val').textContent=state.people;
   syncCurrPills();syncCurrSelect();syncDropdowns();buildCal();updatePickerSelected();updatePickerDropStyles();
 }
 
-async function saveToDB(){
-  setSyncStatus('syncing','Saving…');
-  const ok=await sbSet({bills:state.bills,billData:state.billData,persons:state.persons,groups:state.groups,people:state.people,currSym:state.currSym,customIdCounter:state.customIdCounter,groupIdCounter:state.groupIdCounter});
-  setSyncStatus(ok?'ok':'err',ok?'Saved':'Save failed');
+function saveToDB(){
+  const ok=sbSet({bills:state.bills,billData:state.billData,persons:state.persons,groups:state.groups,people:state.people,currSym:state.currSym,customIdCounter:state.customIdCounter,groupIdCounter:state.groupIdCounter});
+  setSyncStatus(ok?'ok':'err',ok?'Saved':'Error');
 }
 function scheduleSave(){if(!isEditor)return;clearTimeout(syncTimeout);syncTimeout=setTimeout(saveToDB,1200);}
 
@@ -547,6 +569,8 @@ function applyEditMode(){
 
 function applyTheme(){
   syncCurrSelect();
+  const ba=document.getElementById('banner-accent');if(ba)ba.style.color=state.accentColor;
+  const ibg=document.getElementById('icon-bg');if(ibg)ibg.setAttribute('fill',state.accentColor);
   document.body.classList.toggle('dark',state.isDark);
   document.querySelectorAll('.tab-item').forEach(el=>{el.style.color=el.classList.contains('active')?state.accentColor:'';});
   document.querySelectorAll('.ptbtn').forEach(el=>{const on=el.classList.contains('active');el.style.background=on?state.accentColor:'';el.style.color=on?'#fff':'';});
@@ -1017,9 +1041,7 @@ document.addEventListener('click',function(e){
 });
 initDropdowns();buildYearOpts();buildSwatches();buildPersonsList();buildGroupsList();buildBillList();buildMobBillList();updateHomeBadge();buildCal();applyTheme();applyEditMode();update();updatePickerSelected();updatePickerDropStyles();
 window.addEventListener('resize',()=>{applyEditMode();applyTheme();});
-function startSync(){loadFromDB();setInterval(()=>loadFromDB(),30000);}
-window._startSync=startSync;
-if(window._fbReady){startSync();}
+loadFromDB();
 </script>
 
 <!-- PIN overlay -->
@@ -1044,18 +1066,5 @@ if(window._fbReady){startSync();}
 
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
-<script type="module">
-  import{initializeApp}from'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
-  import{getFirestore,doc,getDoc,setDoc}from'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
-  const _cfg={apiKey:"AIzaSyBz1nV-Z8RULvVV0kGChaW96YdzB91vyFU",authDomain:"hudincec-household-bills.firebaseapp.com",projectId:"hudincec-household-bills",storageBucket:"hudincec-household-bills.firebasestorage.app",messagingSenderId:"517898288739",appId:"1:517898288739:web:343a6f7bfe9b46cf4a0256"};
-  const _app=initializeApp(_cfg);
-  const _db=getFirestore(_app);
-  window._fbDb=_db;
-  window._fbDoc=doc;
-  window._fbGetDoc=getDoc;
-  window._fbSetDoc=setDoc;
-  window._fbReady=true;
-  if(window._startSync){window._startSync();}
-</script>
 </body>
 </html>
