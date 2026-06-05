@@ -3,11 +3,21 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
 <title>Home Utilities</title>
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Home Utilities">
+<meta name="theme-color" content="#ffffff" id="theme-color-meta">
+<link rel="manifest" href="/manifest.json">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.47.0/tabler-icons.min.css">
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+
+html{overflow:hidden;height:100%}
+body{overflow:hidden;height:100%;position:fixed;width:100%}
+#main{-webkit-overflow-scrolling:touch}
 html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,sans-serif}
 body{background:#f5f5f7;color:#1c1c1e;transition:background 0.2s,color 0.2s;display:block}
 body.dark{background:#111;color:#f2f2f7}
@@ -15,7 +25,7 @@ body.dark{background:#111;color:#f2f2f7}
 /* ── LAYOUT ──────────────────────────────── */
   body{display:block}
   #sidebar{display:none}
-  #main{padding:0 0 70px 0;min-height:100vh;overflow-y:auto;display:block}
+  #main{padding:0 0 calc(70px + env(safe-area-inset-bottom, 0px)) 0;min-height:100vh;overflow-y:auto;display:block}
   #mob-header{display:flex;align-items:center;justify-content:space-between;padding:14px 16px 6px;background:#fff;border-bottom:0.5px solid rgba(0,0,0,0.08);position:sticky;top:0;z-index:50}
   body.dark #mob-header{background:#1c1c1e;border-color:rgba(255,255,255,0.08)}
   #tab-bar{display:flex;justify-content:space-around;align-items:center;padding:8px 0 env(safe-area-inset-bottom,12px);background:#fff;border-top:0.5px solid rgba(0,0,0,0.08);position:fixed;bottom:0;left:0;right:0;z-index:50}
@@ -385,12 +395,6 @@ body.dark .date-opt:hover{background:rgba(255,255,255,0.06)}
     </div>
   </div>
 
-  <!-- ── HISTORY ────────────────────────────────── -->
-  <div class="screen" id="screen-history">
-    <div class="page-hdr" style="padding:0 16px 0;"><div class="page-title">History</div></div>
-    <div style="padding:16px;"><div class="panel"><div class="no-data"><i class="ti ti-calendar" style="font-size:36px;display:block;margin-bottom:10px;opacity:0.3;"></i>No history yet</div></div></div>
-  </div>
-
   <!-- ── SETTINGS ───────────────────────────────── -->
   <div class="screen" id="screen-settings">
     <div class="page-hdr" style="padding:0 16px 0;"><div class="page-title">Settings</div></div>
@@ -455,7 +459,6 @@ body.dark .date-opt:hover{background:rgba(255,255,255,0.06)}
 <div id="tab-bar">
   <button class="tab-item active" onclick="goTab('home')" data-tab="home"><i class="ti ti-layout-dashboard"></i><span>Home</span></button>
   <button class="tab-item" onclick="goTab('bills')" data-tab="bills"><i class="ti ti-receipt"></i><span>Bills</span></button>
-  <button class="tab-item" onclick="goTab('history')" data-tab="history"><i class="ti ti-calendar"></i><span>History</span></button>
   <button class="tab-item" onclick="goTab('settings')" data-tab="settings"><i class="ti ti-settings"></i><span>Settings</span></button>
 </div>
 
@@ -559,7 +562,8 @@ function applyTheme(){
 function buildSwatches(){document.getElementById('swatches').innerHTML=suggested.map(c=>`<div class="sw${c.hex===state.accentColor?' on':''}" style="background:${c.hex};" onclick="applyAccent('${c.hex}','${c.name}',this)" title="${c.name}"></div>`).join('');}
 function applyAccent(hex,name,el){state.accentColor=hex;state.accentName=name;try{localStorage.setItem('hu_accent',hex);localStorage.setItem('hu_accentName',name);}catch(e){}document.getElementById('accent-sub').textContent=name;document.getElementById('cc').value=hex;document.querySelectorAll('.sw').forEach(s=>s.classList.remove('on'));if(el)el.classList.add('on');applyTheme();scheduleSave();}
 function applyCustomColor(hex){state.accentColor=hex;state.accentName='Custom';try{localStorage.setItem('hu_accent',hex);localStorage.setItem('hu_accentName','Custom');}catch(e){}document.getElementById('accent-sub').textContent='Custom';document.querySelectorAll('.sw').forEach(s=>s.classList.remove('on'));applyTheme();scheduleSave();}
-function setTheme(mode,btn){state.isDark=mode==='dark';try{localStorage.setItem('hu_dark',state.isDark?'1':'0');}catch(e){}document.querySelectorAll('.th-btn').forEach(b=>{b.classList.remove('active');b.style.background='';b.style.color='';});btn.classList.add('active');btn.style.background=state.accentColor;btn.style.color='#fff';document.getElementById('theme-sub').textContent=state.isDark?'Dark':'Light';applyTheme();scheduleSave();}
+function setTheme(mode,btn){state.isDark=mode==='dark';try{localStorage.setItem('hu_dark',state.isDark?'1':'0');}catch(e){}
+  const tcm=document.getElementById('theme-color-meta');if(tcm)tcm.content=state.isDark?'#111111':'#ffffff';document.querySelectorAll('.th-btn').forEach(b=>{b.classList.remove('active');b.style.background='';b.style.color='';});btn.classList.add('active');btn.style.background=state.accentColor;btn.style.color='#fff';document.getElementById('theme-sub').textContent=state.isDark?'Dark':'Light';applyTheme();scheduleSave();}
 function setCurrencyFromSelect(sel){
   if(!isEditor)return;
   const parts=sel.value.split('|');
@@ -658,7 +662,7 @@ function setChartType(type,btn){
   update();
 }
 function setBd(mode,btn){state.bdMode=mode;document.querySelectorAll('.bd-btn').forEach(b=>{b.classList.remove('active');b.style.background='';b.style.color='';});btn.classList.add('active');btn.style.background=state.accentColor;btn.style.color='#fff';applyTheme();update();}
-const tabNames={home:'Overview',bills:'Bills',history:'History',settings:'Settings'};
+const tabNames={home:'Overview',bills:'Bills',settings:'Settings'};
 
 function goTab(name){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
